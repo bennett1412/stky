@@ -1,0 +1,36 @@
+.stky-highlight {
+    background-color: #B8E1B8;
+    position: relative;
+}
+
+.stky-note {
+    position: absolute;
+    top: 100%;
+    width: 300px;
+    /* Width of the sticky note */
+    height: 200px;
+    /* Height of the sticky note */
+    background-color: #ffeb3b;
+    /* Bright yellow background */
+    border: 1px solid #bdbdbd;
+    /* Light gray border */
+    border-radius: 5px;
+    /* Rounded corners */
+    box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.2);
+    /* Shadow for depth */
+    font-family: 'Reenie Beanie', cursive;
+    /* Handwritten font style */
+    font-size: 16px;
+    /* Font size */
+    padding: 10px;
+    /* Inner padding */
+    resize: none;
+    /* Disable resizing */
+    overflow: hidden;
+    /* Prevent overflow */
+}
+
+.stky-note:hover {
+    box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.4);
+    /* Darker shadow on hover */
+}
