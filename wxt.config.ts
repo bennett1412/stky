@@ -16,7 +16,7 @@ export default defineConfig({
         // add it manually.
         manifest.content_scripts ??= [];
         manifest.content_scripts.push({
-          matches: ["*://*.wikipedia.org/*"],
+          matches: ["<all_urls>"],
           js: ["content-scripts/content.js"],
           // If the script has CSS, add it here.
         });

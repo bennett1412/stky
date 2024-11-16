@@ -15,15 +15,20 @@
     "postinstall": "wxt prepare"
   },
   "dependencies": {
+    "@floating-ui/dom": "^1.6.12",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@eslint/js": "^9.15.0",
     "@types/chrome": "^0.0.280",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@wxt-dev/module-react": "^1.1.1",
+    "eslint": "^9.15.0",
+    "globals": "^15.12.0",
     "typescript": "^5.6.3",
+    "typescript-eslint": "^8.14.0",
     "wxt": "^0.19.13"
   }
 }

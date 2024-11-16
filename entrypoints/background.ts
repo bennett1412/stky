@@ -14,11 +14,6 @@ export default defineBackground(() => {
     );
   })
   
-  
-  // chrome.contextMenus.onClicked.addListener(async (info, tab) => {
-  
-  // })
-  
   chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   
     switch (info.menuItemId) {

@@ -1,36 +1,55 @@
 .stky-highlight {
     background-color: #B8E1B8;
     position: relative;
+    overflow: visible;
+}
+
+.stky-container {
+    z-index: 99;
+    position: absolute;
+    /* width: max-content; */
+    width: 300px;
+    top: 0;
+    left: 0;
+    height: 200px;
+    background-color: #ffeb3b;
+    border: 1px solid #bdbdbd;
+    border-radius: 5px;
+    box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.2);
+    font-size: 16px;
+    transition: all 0.5s ease;
+    display: flex;
+}
+
+.stky-content{
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    row-gap: 0.5rem;
 }
 
 .stky-note {
-    position: absolute;
-    top: 100%;
-    width: 300px;
-    /* Width of the sticky note */
-    height: 200px;
-    /* Height of the sticky note */
-    background-color: #ffeb3b;
-    /* Bright yellow background */
-    border: 1px solid #bdbdbd;
-    /* Light gray border */
-    border-radius: 5px;
-    /* Rounded corners */
-    box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.2);
-    /* Shadow for depth */
     font-family: 'Reenie Beanie', cursive;
-    /* Handwritten font style */
+    background-color: #ffeb3b;
     font-size: 16px;
-    /* Font size */
     padding: 10px;
-    /* Inner padding */
-    resize: none;
-    /* Disable resizing */
-    overflow: hidden;
-    /* Prevent overflow */
+    display: flex;
+    flex: 0.8;
 }
 
-.stky-note:hover {
+.stky-container:hover {
     box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.4);
-    /* Darker shadow on hover */
+}
+
+.stky-ball {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    overflow: hidden;
+    padding: 0;
+    background-color: #ffeb3bbb;
+}
+
+.hidden {
+    display: none;
 }

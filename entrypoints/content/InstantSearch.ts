@@ -1,4 +1,4 @@
-console.log("including search token class");
+import { autoUpdate, computePosition } from "@floating-ui/dom";
 
 type StateTransitionType = {
   empty: number;
@@ -52,7 +52,7 @@ export class InstantSearch {
   private defaultCaseSensitive: boolean;
   private matches: Match[];
   private perfs: PerformanceMetrics[];
-
+  private cleanUp: Function | undefined;
   constructor(
     root: HTMLElement,
     token: SearchToken,
@@ -115,7 +115,7 @@ export class InstantSearch {
         parent?.normalize();
         this.mergeAdjacentSimilarNodes(parent as HTMLElement);
       });
-
+    if (this.cleanUp) this.cleanUp();
     const t2 = performance.now();
     this.perfs.push({ event: "Remove highlights", time: t2 - t1 });
   }
@@ -231,13 +231,61 @@ export class InstantSearch {
     const clonedStartNode = startNode.cloneNode(true);
     const clonedEndNode = endNode.cloneNode(true);
     const selectedText = range.extractContents();
+
     const marker = document.createElement("marker");
     marker.classList.add(className);
     marker.appendChild(selectedText);
+
+    // container
+    const noteContainer = document.createElement("div");
+    noteContainer.classList.add("stky-container");
+
+    // content
+    const noteContent = document.createElement("div");
+    noteContent.classList.add("stky-content");
+    noteContainer.appendChild(noteContent);
+    // textarea
     const noteArea = document.createElement("textarea");
+    noteArea.placeholder = "Type something here...";
     noteArea.classList.add("stky-note");
-    marker.appendChild(noteArea);
+    noteContent.appendChild(noteArea);
+
+    const updatePosition = () => {
+      computePosition(marker, noteContainer).then(({ x, y }) => {
+        Object.assign(noteContainer.style, {
+          left: `${x}px`,
+          top: `${y}px`,
+        });
+      });
+    };
+
+    // operations
+    // toggle size
+    const toggleSizeButton = document.createElement("button");
+    toggleSizeButton.textContent = "Shrink";
+    toggleSizeButton.addEventListener("click", (e) => {
+      e.stopPropagation();
+      noteContainer.classList.add("stky-ball");
+      noteContent.classList.add("hidden");
+
+      noteContainer.addEventListener(
+        "click",
+        () => {
+          noteContainer.classList.remove("stky-ball");
+          noteContent.classList.remove("hidden");
+        },
+        { once: true }
+      );
+    });
+    noteContent.appendChild(toggleSizeButton);
+
+    document.body.appendChild(noteContainer);
+    this.cleanUp = autoUpdate(marker, noteContainer, updatePosition, {
+      elementResize: true
+    });
+
     range.insertNode(marker);
+
     this.removeEmptyDirectSiblings(
       marker,
       clonedStartNode as Node,
@@ -313,24 +361,20 @@ export class InstantSearch {
   }
 }
 
-const normalizeSpaces = (text: string): string => {
-  return text.replace(/[\s\u00A0]+/g, " ");
-};
+// function findMatch(e: Event): void {
+//   const root = document.getElementById("content");
+//   if (!root) return;
 
-function findMatch(e: Event): void {
-  const root = document.getElementById("content");
-  if (!root) return;
+//   const searchToken = normalizeSpaces(window.getSelection()?.toString() || "");
+//   console.log(searchToken);
 
-  const searchToken = normalizeSpaces(window.getSelection()?.toString() || "");
-  console.log(searchToken);
+//   const instance = new InstantSearch(
+//     root,
+//     new SearchToken(searchToken, "highlight")
+//   );
+//   instance.removeHighlight();
 
-  const instance = new InstantSearch(
-    root,
-    new SearchToken(searchToken, "highlight")
-  );
-  instance.removeHighlight();
-
-  if (searchToken) {
-    instance.highlight();
-  }
-}
+//   if (searchToken) {
+//     instance.highlight();
+//   }
+// }
