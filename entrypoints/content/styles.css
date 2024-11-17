@@ -1,55 +1,137 @@
+/* Highlighted Content */
 .stky-highlight {
     background-color: #B8E1B8;
     position: relative;
     overflow: visible;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
 }
 
+.stky-highlight:hover {
+    background-color: #A2D9A2;
+}
+
+/* Container */
 .stky-container {
     z-index: 99;
     position: absolute;
-    /* width: max-content; */
     width: 300px;
     top: 0;
     left: 0;
     height: 200px;
-    background-color: #ffeb3b;
-    border: 1px solid #bdbdbd;
-    border-radius: 5px;
-    box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.2);
+    background-color: #B3E5FC;
+    border: 1px solid #E0E0E0;
+    border-radius: 8px;
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);
     font-size: 16px;
-    transition: all 0.5s ease;
+    transition: width 0.2s ease, height 0.2s ease, box-shadow 0.3s ease;
     display: flex;
+    padding: 10px;
 }
 
-.stky-content{
+.stky-container:hover {
+    box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Content Area */
+.stky-content {
     display: flex;
     flex-direction: column;
     flex: 1;
     row-gap: 0.5rem;
+    padding: 10px;
 }
 
+/* Notes */
 .stky-note {
     font-family: 'Reenie Beanie', cursive;
-    background-color: #ffeb3b;
-    font-size: 16px;
-    padding: 10px;
-    display: flex;
-    flex: 0.8;
+    background-color: #B3E5FC !important;
+    font-size: 18px;
+    padding: 10px 15px;
+    border-radius: 5px;
+    flex: 1;
+    color: #6D6D6D;
+    box-shadow: inset 0px 2px 4px rgba(0, 0, 0, 0.1);
+    line-height: 1.5;
+    resize: none;
 }
 
-.stky-container:hover {
-    box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.4);
-}
-
+/* Interactive Ball */
 .stky-ball {
-    width: 20px;
-    height: 20px;
+    width: 23px;
+    height: 23px;
     border-radius: 50%;
-    overflow: hidden;
-    padding: 0;
-    background-color: #ffeb3bbb;
+    background-color: #B3E5FC;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease, background-color 0.3s ease;
+    cursor: pointer;
 }
 
+.stky-ball:hover {
+    transform: scale(1.1);
+}
+
+.stky-ball:active {
+    transform: scale(0.9);
+}
+
+
+/* Operations Container */
+.stky-operations{
+    display: flex;
+    column-gap: 0.3rem;
+    justify-content: space-around;
+    align-items: center;
+}
+
+/* Button */
+.stky-button {
+    all: unset;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    background-color: #6D6D6D;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+}
+
+
+.stky-button::before {
+    content: '';
+    display: inline-block;
+    background-size: cover;
+    background-repeat: no-repeat;
+    width: 25px;
+    height: 25px;
+}
+
+.stky-button:hover {
+    background-color: #424242;
+    transform: scale(1.1);
+}
+
+.stky-button:active {
+    background-color: #212121;
+    transform: scale(0.95);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.stky-button[data-icon="shrink"]::before {
+    background-image: url('/assets/shrink.png');
+}
+
+.stky-button[data-icon="delete"]::before {
+    background-image: url('/assets/delete.png');
+}
+
+/* Hidden Elements */
 .hidden {
     display: none;
 }

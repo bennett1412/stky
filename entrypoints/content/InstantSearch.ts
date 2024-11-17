@@ -1,5 +1,4 @@
 import { autoUpdate, computePosition } from "@floating-ui/dom";
-
 type StateTransitionType = {
   empty: number;
   valid: number;
@@ -44,6 +43,7 @@ interface PerformanceMetrics {
 }
 
 export class InstantSearch {
+  private id: string;
   private state: Record<string, any>;
   private root: HTMLElement;
   private token: SearchToken;
@@ -60,6 +60,7 @@ export class InstantSearch {
     defaultClassName = "highlight",
     defaultCaseSensitive = false
   ) {
+    this.id = crypto.randomUUID()
     this.state = {};
     this.root = root;
     this.token = token;
@@ -103,6 +104,9 @@ export class InstantSearch {
     } else if (this.root.parentElement) {
       element = this.root.parentElement;
     }
+    
+    const note = document.getElementById(`${this.id}-note`)
+    note?.remove();
 
     element
       ?.querySelectorAll(`.${this.token.className || this.defaultClassName}`)
@@ -237,13 +241,16 @@ export class InstantSearch {
     marker.appendChild(selectedText);
 
     // container
+
     const noteContainer = document.createElement("div");
     noteContainer.classList.add("stky-container");
+    noteContainer.id = `${this.id}-note`
 
     // content
     const noteContent = document.createElement("div");
     noteContent.classList.add("stky-content");
     noteContainer.appendChild(noteContent);
+
     // textarea
     const noteArea = document.createElement("textarea");
     noteArea.placeholder = "Type something here...";
@@ -251,19 +258,25 @@ export class InstantSearch {
     noteContent.appendChild(noteArea);
 
     const updatePosition = () => {
-      computePosition(marker, noteContainer).then(({ x, y }) => {
-        Object.assign(noteContainer.style, {
-          left: `${x}px`,
-          top: `${y}px`,
-        });
-      });
+      computePosition(marker, noteContainer, { placement: "bottom-end" }).then(
+        ({ x, y }) => {
+          Object.assign(noteContainer.style, {
+            left: `${x}px`,
+            top: `${y}px`,
+          });
+        }
+      );
     };
 
     // operations
-    // toggle size
-    const toggleSizeButton = document.createElement("button");
-    toggleSizeButton.textContent = "Shrink";
-    toggleSizeButton.addEventListener("click", (e) => {
+    const operationsContainer = document.createElement('div')
+    operationsContainer.classList.add('stky-operations')
+    // shrink note
+    const shrinkButton = document.createElement("button");
+    shrinkButton.classList.add("stky-button");
+    shrinkButton.classList.add("shrink");
+    shrinkButton.setAttribute('data-icon', 'shrink')
+    shrinkButton.addEventListener("click", (e) => {
       e.stopPropagation();
       noteContainer.classList.add("stky-ball");
       noteContent.classList.add("hidden");
@@ -277,14 +290,29 @@ export class InstantSearch {
         { once: true }
       );
     });
-    noteContent.appendChild(toggleSizeButton);
+    
 
-    document.body.appendChild(noteContainer);
-    this.cleanUp = autoUpdate(marker, noteContainer, updatePosition, {
-      elementResize: true
+    const deleteButton = document.createElement("button");
+    deleteButton.classList.add("stky-button");
+    deleteButton.addEventListener("click", (e) => {
+      e.stopPropagation();
+      this.removeHighlight();
     });
+    deleteButton.classList.add("stky-button");
+    deleteButton.classList.add("delete");
+    deleteButton.setAttribute('data-icon', 'delete')
 
+    operationsContainer.appendChild(shrinkButton);
+    operationsContainer.appendChild(deleteButton);
+
+    noteContent.appendChild(operationsContainer)
+
+    // add note to doc body
+    document.body.appendChild(noteContainer);
+
+    // add highlight to page
     range.insertNode(marker);
+    this.cleanUp = autoUpdate(marker, noteContainer, updatePosition);
 
     this.removeEmptyDirectSiblings(
       marker,
