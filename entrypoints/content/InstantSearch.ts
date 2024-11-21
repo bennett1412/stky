@@ -1,4 +1,7 @@
-import { autoUpdate, computePosition } from "@floating-ui/dom";
+import { autoUpdate, computePosition, inline } from "@floating-ui/dom";
+import { debounce } from "./utils";
+import { Note, NoteDB, updateNote } from "./database";
+import { IDBPDatabase } from "idb";
 type StateTransitionType = {
   empty: number;
   valid: number;
@@ -53,14 +56,16 @@ export class InstantSearch {
   private matches: Match[];
   private perfs: PerformanceMetrics[];
   private cleanUp: Function | undefined;
+  private db: IDBPDatabase<NoteDB>;
   constructor(
     root: HTMLElement,
     token: SearchToken,
+    db: IDBPDatabase<NoteDB>,
     scrollToResult = true,
     defaultClassName = "highlight",
     defaultCaseSensitive = false
   ) {
-    this.id = crypto.randomUUID()
+    this.id = crypto.randomUUID();
     this.state = {};
     this.root = root;
     this.token = token;
@@ -69,6 +74,7 @@ export class InstantSearch {
     this.defaultCaseSensitive = defaultCaseSensitive;
     this.matches = [];
     this.perfs = [];
+    this.db = db;
   }
 
   highlight(): void {
@@ -104,8 +110,8 @@ export class InstantSearch {
     } else if (this.root.parentElement) {
       element = this.root.parentElement;
     }
-    
-    const note = document.getElementById(`${this.id}-note`)
+
+    const note = document.getElementById(`${this.id}-note`);
     note?.remove();
 
     element
@@ -244,7 +250,7 @@ export class InstantSearch {
 
     const noteContainer = document.createElement("div");
     noteContainer.classList.add("stky-container");
-    noteContainer.id = `${this.id}-note`
+    noteContainer.id = `${this.id}-note`;
 
     // content
     const noteContent = document.createElement("div");
@@ -254,11 +260,25 @@ export class InstantSearch {
     // textarea
     const noteArea = document.createElement("textarea");
     noteArea.placeholder = "Type something here...";
+    const handleInput = debounce((e: InputEvent) => {
+      const value = (e.target as HTMLTextAreaElement).value;
+      const note: Note = {
+        id: this.id,
+        nodeMap: "",
+        content: value,
+        highlighted: marker.textContent!!,
+      };
+      updateNote(this.db, note);
+    }, 3000);
+
+    noteArea.addEventListener("input", (e) => {
+      handleInput(e as InputEvent);
+    });
     noteArea.classList.add("stky-note");
     noteContent.appendChild(noteArea);
 
     const updatePosition = () => {
-      computePosition(marker, noteContainer, { placement: "bottom-end" }).then(
+      computePosition(marker, noteContainer, { middleware: [inline()] }).then(
         ({ x, y }) => {
           Object.assign(noteContainer.style, {
             left: `${x}px`,
@@ -269,13 +289,13 @@ export class InstantSearch {
     };
 
     // operations
-    const operationsContainer = document.createElement('div')
-    operationsContainer.classList.add('stky-operations')
+    const operationsContainer = document.createElement("div");
+    operationsContainer.classList.add("stky-operations");
     // shrink note
     const shrinkButton = document.createElement("button");
     shrinkButton.classList.add("stky-button");
     shrinkButton.classList.add("shrink");
-    shrinkButton.setAttribute('data-icon', 'shrink')
+    shrinkButton.setAttribute("data-icon", "shrink");
     shrinkButton.addEventListener("click", (e) => {
       e.stopPropagation();
       noteContainer.classList.add("stky-ball");
@@ -290,7 +310,6 @@ export class InstantSearch {
         { once: true }
       );
     });
-    
 
     const deleteButton = document.createElement("button");
     deleteButton.classList.add("stky-button");
@@ -300,19 +319,21 @@ export class InstantSearch {
     });
     deleteButton.classList.add("stky-button");
     deleteButton.classList.add("delete");
-    deleteButton.setAttribute('data-icon', 'delete')
+    deleteButton.setAttribute("data-icon", "delete");
 
     operationsContainer.appendChild(shrinkButton);
     operationsContainer.appendChild(deleteButton);
 
-    noteContent.appendChild(operationsContainer)
+    noteContent.appendChild(operationsContainer);
 
     // add note to doc body
     document.body.appendChild(noteContainer);
 
     // add highlight to page
     range.insertNode(marker);
-    this.cleanUp = autoUpdate(marker, noteContainer, updatePosition);
+    this.cleanUp = autoUpdate(marker, noteContainer, updatePosition, {
+      elementResize: false,
+    });
 
     this.removeEmptyDirectSiblings(
       marker,

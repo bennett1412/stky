@@ -1,5 +1,7 @@
-import "./styles.css"; 
+import "./styles.css";
 import { SearchToken, InstantSearch } from "./InstantSearch";
+import { getDB } from "./database";
+import { StickyNote } from "./StickyNote";
 export default defineContentScript({
   matches: ["<all_urls>"],
   async main(ctx) {
@@ -21,17 +23,18 @@ export default defineContentScript({
     const normalizeSpaces = (text: string): string => {
       return text.replace(/[\s\u00A0]+/g, " ");
     };
-    const insertNote = (root: HTMLElement | null) => {
+    const insertNote = async (root: HTMLElement | null) => {
       if (root === null) {
         return;
       }
       const searchToken = normalizeSpaces(
         window.getSelection()?.toString() || ""
       );
-      window.getSelection()?.empty()
+      window.getSelection()?.empty();
       const tokenInstance = new SearchToken(searchToken, "stky-highlight");
-      const search = new InstantSearch(root, tokenInstance);
-    search.highlight();
+      const db = await getDB();
+      const search = new StickyNote(root, tokenInstance, db);
+      search.highlight();
     };
 
     var clickedEl: HTMLElement | null = null;

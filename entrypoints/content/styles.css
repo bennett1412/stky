@@ -1,14 +1,15 @@
 /* Highlighted Content */
 .stky-highlight {
-    background-color: #B8E1B8;
+    background-color: #00b938c9;
     position: relative;
     overflow: visible;
     border-radius: 4px;
     transition: background-color 0.3s ease;
+    color: white;
 }
 
 .stky-highlight:hover {
-    background-color: #A2D9A2;
+    background-color: #008f2bc9;
 }
 
 /* Container */
@@ -19,7 +20,7 @@
     top: 0;
     left: 0;
     height: 200px;
-    background-color: #B3E5FC;
+    background-color: #b9fcb3;
     border: 1px solid #E0E0E0;
     border-radius: 8px;
     box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);
@@ -45,15 +46,16 @@
 /* Notes */
 .stky-note {
     font-family: 'Reenie Beanie', cursive;
-    background-color: #B3E5FC !important;
+    background-color: #b9fcb3 !important;
     font-size: 18px;
     padding: 10px 15px;
     border-radius: 5px;
     flex: 1;
     color: #6D6D6D;
-    box-shadow: inset 0px 2px 4px rgba(0, 0, 0, 0.1);
+    border: none;
     line-height: 1.5;
     resize: none;
+    outline: transparent;
 }
 
 /* Interactive Ball */
@@ -61,7 +63,7 @@
     width: 23px;
     height: 23px;
     border-radius: 50%;
-    background-color: #B3E5FC;
+    background-color: #b9fcb3;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -80,7 +82,7 @@
 
 
 /* Operations Container */
-.stky-operations{
+.stky-operations {
     display: flex;
     column-gap: 0.3rem;
     justify-content: space-around;
@@ -98,7 +100,7 @@
     align-items: center;
     justify-content: center;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-    transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
     cursor: pointer;
 }
 

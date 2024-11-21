@@ -1,6 +1,11 @@
-import { openDB, DBSchema } from "idb";
-
-interface NoteDB extends DBSchema {
+import { openDB, DBSchema, IDBPDatabase } from "idb";
+export interface Note {
+  id: string;
+  content: string;
+  nodeMap: string;
+  highlighted: string;
+}
+export interface NoteDB extends DBSchema {
   notes: {
     value: {
       content: string;
@@ -25,8 +30,23 @@ export async function getDB() {
   return db;
 }
 
-// function to add a note 
+// function to add a note
+export async function addNote(db: IDBPDatabase<NoteDB>, note: Note) {
+  await db.add("notes", note);
+}
 
-// function to update a note 
+// function to update a note
+export async function updateNote(db: IDBPDatabase<NoteDB>, note: Note) {
+  await db.put('notes', note)
+}
 
-// function to delete a note 
+// function to delete a note
+export async function deleteNote(db: IDBPDatabase<NoteDB>, note: Note) {
+  await db.add("notes", note);
+}
+
+// function to get all notes 
+export async function getAllNotes(db: IDBPDatabase<NoteDB>, note: Note) {
+  const notes = await db.getAll('notes');
+  return notes; 
+}
