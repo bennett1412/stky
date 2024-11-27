@@ -1,5 +1,5 @@
 export default defineBackground(() => {
-  console.log('Hello background!', { id: browser.runtime.id });
+  console.log("Hello background!", { id: browser.runtime.id });
 
   chrome.runtime.onInstalled.addListener(function () {
     chrome.contextMenus.create(
@@ -9,62 +9,36 @@ export default defineBackground(() => {
         contexts: ["selection"],
       },
       () => {
-        console.log('context menu created')
-      },
+        console.log("context menu created");
+      }
     );
-  })
-  
+  });
+
   chrome.contextMenus.onClicked.addListener(async (info, tab) => {
-  
     switch (info.menuItemId) {
       case "add-note":
-        if(tab){
-        console.log(info.selectionText);
-        const res = await getNoteLocation(info, tab)
-        if(res){
-        const id = res.rootId;
+        if (tab) {
+          console.log(info.selectionText);
+          await getNoteLocation(info, tab);
         }
-        }
-        // save the node to indexdb
-  
-  
-  
         break;
     }
     return true;
   });
-  
-  function getNoteLocation(info: chrome.contextMenus.OnClickData, tab: chrome.tabs.Tab): Promise<{rootId: string} | null> {
+
+  // might not need a promise here
+  // how to know if adding a promise impacts perf 
+  function getNoteLocation(
+    info: chrome.contextMenus.OnClickData,
+    tab: chrome.tabs.Tab
+  ): Promise<void | null> {
     return new Promise((resolve, reject) => {
-      chrome.tabs.sendMessage(tab.id!!, "getClickedEl", data => {
+      chrome.tabs.sendMessage(tab.id!!, "getClickedEl", (data) => {
         if (data.value === null) {
-          reject(null)
+          reject(null);
         }
-        // console.log(data)
-        resolve(data.value)
+        resolve();
       });
     });
-  }
-  
-  function notifySaveSuccessful(info: chrome.contextMenus.OnClickData, tab: chrome.tabs.Tab) {
-    return new Promise((resolve, reject) => {
-      chrome.tabs.sendMessage(tab.id!!, "noteSaved", data => {
-        resolve(true)
-      })
-    })
-  }
-  
-  function addNote(tab: chrome.tabs.Tab) {
-    // new Promise((resolve, reject) => {
-    //       chrome.tabs.sendMessage(tab.id, {
-    //         type: "insertNote",
-    //         map: "DIV;P;",
-    //         id: "mw-content-text"
-    //       }, (data) => {
-    //         resolve(data)
-    //       })
-    //     }).then(data => console.log('added note'))
-  
-    return true
   }
 });

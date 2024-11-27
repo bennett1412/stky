@@ -2,6 +2,8 @@ import "./styles.css";
 import { SearchToken, InstantSearch } from "./InstantSearch";
 import { getDB } from "./database";
 import { StickyNote } from "./StickyNote";
+import { NodeMap } from "./types";
+import { insertSavedNotes } from "./contentOperations";
 export default defineContentScript({
   matches: ["<all_urls>"],
   async main(ctx) {
@@ -19,11 +21,11 @@ export default defineContentScript({
 
     // // 4. Mount the UI
     // ui.mount();
-
+    insertSavedNotes();
     const normalizeSpaces = (text: string): string => {
       return text.replace(/[\s\u00A0]+/g, " ");
     };
-    const insertNote = async (root: HTMLElement | null) => {
+    const insertNote = async (root: HTMLElement | null, nodeMap: NodeMap) => {
       if (root === null) {
         return;
       }
@@ -33,7 +35,9 @@ export default defineContentScript({
       window.getSelection()?.empty();
       const tokenInstance = new SearchToken(searchToken, "stky-highlight");
       const db = await getDB();
-      const search = new StickyNote(root, tokenInstance, db);
+      const urlObj = new URL(document.URL);
+      const baseURL = `${urlObj.origin}${urlObj.pathname}`;
+      const search = new StickyNote(root, tokenInstance, db, nodeMap, baseURL);
       search.highlight();
     };
 
@@ -63,7 +67,7 @@ export default defineContentScript({
         let id = null;
         while (currentNode) {
           id = currentNode.id;
-          if (id !== "" && id !== undefined) {
+          if (id !== "" && id !== undefined && map.split(";").length > 15) {
             break;
           }
 
@@ -72,13 +76,17 @@ export default defineContentScript({
         }
 
         console.log(id + map);
-        const nodeMap = {
-          rootId: id,
-          map: map,
-          // Add any other relevant properties
-        };
-        sendResponse({ value: nodeMap });
-        insertNote(clickedEl);
+        if (id === null && map.split(";").length > 10) {
+          // use popup for sticky note
+        } else {
+          // use floating sticky note
+          const nodeMap = {
+            rootId: id!!,
+            map: map,
+          };
+          sendResponse({ error: null });
+          insertNote(clickedEl, nodeMap);
+        }
         return true;
       }
     });

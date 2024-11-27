@@ -1,25 +1,42 @@
-import { autoUpdate, computePosition, inline } from "@floating-ui/dom";
+import {
+  autoPlacement,
+  autoUpdate,
+  computePosition,
+  inline,
+} from "@floating-ui/dom";
 import { debounce } from "./utils";
 import { Note, NoteDB, updateNote } from "./database";
 import { IDBPDatabase } from "idb";
 import { BaseSearch } from "./BaseSearch";
 import { SearchToken } from "./BaseSearch";
+import { NodeMap } from "./types";
 
 export class StickyNote extends BaseSearch {
-  private id: string;
+  private id: `${string}-${string}-${string}-${string}-${string}`;
   private db: IDBPDatabase<NoteDB>;
+  private nodeMap: NodeMap;
+  private content: string;
+  // todo probably save the note content too
+  private url: string;
   private cleanUp: Function | undefined;
 
   constructor(
     root: HTMLElement,
     token: SearchToken,
     db: IDBPDatabase<NoteDB>,
+    nodeMap: NodeMap,
+    url: string,
+    id = crypto.randomUUID(),
+    content = "",
     defaultClassName = "highlight",
     defaultCaseSensitive = false
   ) {
     super(root, token, defaultClassName, defaultCaseSensitive);
-    this.id = crypto.randomUUID();
+    this.id = id;
+    this.content = content;
     this.db = db;
+    this.nodeMap = nodeMap;
+    this.url = url;
   }
 
   protected wrapRange(range: Range, className: string): void {
@@ -32,11 +49,12 @@ export class StickyNote extends BaseSearch {
     document.body.appendChild(noteContainer);
     range.insertNode(marker);
     this.cleanUp = autoUpdate(marker, noteContainer, () => {
-      computePosition(marker, noteContainer, { middleware: [inline()] }).then(
-        ({ x, y }) => {
-          Object.assign(noteContainer.style, { left: `${x}px`, top: `${y}px` });
-        }
-      );
+      computePosition(marker, noteContainer, {
+        placement: "bottom-end",
+        middleware: [inline()],
+      }).then(({ x, y }) => {
+        Object.assign(noteContainer.style, { left: `${x}px`, top: `${y}px` });
+      });
     });
   }
 
@@ -51,19 +69,18 @@ export class StickyNote extends BaseSearch {
     const noteArea = document.createElement("textarea");
     noteArea.placeholder = "Type something here...";
     noteArea.classList.add("stky-note");
-
+    noteArea.value = this.content;
     noteArea.addEventListener(
       "input",
-      debounce((e) => {
+      debounce(async (e) => {
         const inputEvent = e as InputEvent;
         const value = (e.target as HTMLTextAreaElement).value;
-        const note: Note = {
-          id: this.id,
-          nodeMap: "",
-          content: value,
-          highlighted: marker.textContent || "",
-        };
-        updateNote(this.db, note);
+        const note: Note = this.getNoteObject(marker, value);
+        try {
+          await updateNote(this.db, note);
+        } catch (error) {
+          console.error("Failed to update note:", error);
+        }
       }, 3000)
     );
 
@@ -81,8 +98,8 @@ export class StickyNote extends BaseSearch {
       noteContainer.addEventListener(
         "click",
         () => {
-          noteContainer.classList.remove("stky-ball");
           noteContent.classList.remove("hidden");
+          noteContainer.classList.remove("stky-ball");
         },
         { once: true }
       );
@@ -105,5 +122,15 @@ export class StickyNote extends BaseSearch {
 
     noteContainer.appendChild(noteContent);
     return noteContainer;
+  }
+
+  getNoteObject(marker: HTMLElement, value: string) {
+    return {
+      id: this.id,
+      nodeMap: this.nodeMap,
+      content: value,
+      highlighted: marker.textContent || "",
+      url: this.url,
+    };
   }
 }

@@ -58,11 +58,13 @@ export class BaseSearch {
     this.state = {};
   }
 
-  highlight(): void {
+  highlight(): boolean {
     this.matches = [];
     this.state[this.token.text] = {};
     if (this.token.text.length > 0) {
       this.walk(this.root);
+      console.log(this.matches)
+      if (this.matches.length === 0) return false;
       this.matches.reverse().forEach((m) => {
         const className = m.token.className || this.defaultClassName;
         const range = this.createRange(
@@ -74,6 +76,7 @@ export class BaseSearch {
         this.wrapRange(range, className);
       });
     }
+    return true;
   }
 
   removeHighlight(): void {
