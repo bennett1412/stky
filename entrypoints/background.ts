@@ -34,7 +34,7 @@ export default defineBackground(() => {
     //       await insertNote(info, tab);
     //     }
     // }
-    console.log("its ready");
+
     if (tab) {
       if (info.menuItemId === "add-note") {
         await insertNote(info, tab);

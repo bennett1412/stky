@@ -1,11 +1,14 @@
 import { openDB, DBSchema, IDBPDatabase } from "idb";
 import { NodeMap, randomUUIDType } from "./types";
+
+// todo: merge Note and StickyNote interfaces or atleast extend them
 export interface Note {
   id: randomUUIDType;
   content: string;
   nodeMap: NodeMap;
   highlighted: string;
   url: string;
+  hide: boolean;
 }
 export interface NoteDB extends DBSchema {
   notes: {

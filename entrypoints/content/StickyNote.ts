@@ -17,6 +17,7 @@ type StickyNoteParams = {
   db: IDBPDatabase<NoteDB>;
   nodeMap: NodeMap;
   url: string;
+  hide?: boolean;
   id?: randomUUIDType;
   content?: string;
   defaultClassName?: string;
@@ -29,6 +30,7 @@ export class StickyNote extends BaseSearch {
   private content: string;
   // todo probably save the note content too
   private url: string;
+  private hide: boolean;
   private cleanUp: Function | undefined;
 
   constructor({
@@ -36,6 +38,7 @@ export class StickyNote extends BaseSearch {
     token,
     db,
     nodeMap,
+    hide,
     url,
     id,
     content,
@@ -53,6 +56,7 @@ export class StickyNote extends BaseSearch {
     this.db = db;
     this.nodeMap = nodeMap;
     this.url = url;
+    this.hide = hide ?? false;
   }
 
   protected wrapRange(range: Range, className: string): void {
@@ -81,7 +85,26 @@ export class StickyNote extends BaseSearch {
 
     const noteContent = document.createElement("div");
     noteContent.classList.add("stky-content");
+    const hideNote = () => {
+      this.hide = true;
+      noteContainer.classList.add("stky-ball");
+      noteContent.classList.add("hidden");
+      updateNote(this.db, this.getNoteObject());
+      noteContainer.addEventListener(
+        "click",
+        () => {
+          noteContent.classList.remove("hidden");
+          noteContainer.classList.remove("stky-ball");
+          this.hide = false;
+          updateNote(this.db, this.getNoteObject());
+        },
+        { once: true }
+      );
+    };
 
+    if (this.hide) {
+      hideNote();
+    }
     const noteArea = document.createElement("textarea");
     noteArea.placeholder = "Type something here...";
     noteArea.classList.add("stky-note");
@@ -91,7 +114,7 @@ export class StickyNote extends BaseSearch {
       debounce(async (e) => {
         const inputEvent = e as InputEvent;
         const value = (e.target as HTMLTextAreaElement).value;
-        const note: Note = this.getNoteObject(marker, value);
+        const note: Note = this.getNoteObject(value);
         try {
           await updateNote(this.db, note);
         } catch (error) {
@@ -108,17 +131,7 @@ export class StickyNote extends BaseSearch {
     shrinkButton.setAttribute("data-icon", "shrink");
     shrinkButton.addEventListener("click", (e) => {
       e.stopPropagation();
-      noteContainer.classList.add("stky-ball");
-      noteContent.classList.add("hidden");
-
-      noteContainer.addEventListener(
-        "click",
-        () => {
-          noteContent.classList.remove("hidden");
-          noteContainer.classList.remove("stky-ball");
-        },
-        { once: true }
-      );
+      hideNote();
     });
 
     const deleteButton = document.createElement("button");
@@ -141,13 +154,14 @@ export class StickyNote extends BaseSearch {
     return noteContainer;
   }
 
-  getNoteObject(marker: HTMLElement, value: string) {
+  getNoteObject(value?: string) {
     return {
       id: this.id,
       nodeMap: this.nodeMap,
-      content: value,
+      content: value ?? this.content,
       highlighted: this.token.text,
       url: this.url,
+      hide: this.hide,
     };
   }
 }

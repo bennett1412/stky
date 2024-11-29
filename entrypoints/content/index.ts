@@ -14,7 +14,6 @@ export default defineContentScript({
     //   anchor: "body",
     //   isolateEvents: true,
     //   onMount(container) {
-    //     console.log('mounting shadow')
     //     shadowContainer = container;
     //   },
     // });
@@ -28,10 +27,10 @@ export default defineContentScript({
     insertSavedNotes();
     const normalizeSpaces = (text: string): string => {
       return text
-          .replace(/[\r\n]+/g, " ") 
-          .replace(/[\s\u00A0]+/g, " ") 
-          .trim(); 
-  };
+        .replace(/[\r\n]+/g, " ")
+        .replace(/[\s\u00A0]+/g, " ")
+        .trim();
+    };
     const insertNote = async (
       root: HTMLElement | null,
       nodeMap: NodeMap,
@@ -43,12 +42,10 @@ export default defineContentScript({
       const searchToken = normalizeSpaces(
         window.getSelection()?.toString() || ""
       );
-      console.log(window.getSelection(), window.getSelection()?.toString().includes('\n'));
       const tokenInstance = new SearchToken(searchToken, "stky-highlight");
       const db = await getDB();
       const urlObj = new URL(document.URL);
       const baseURL = `${urlObj.origin}${urlObj.pathname}`;
-      console.log("this is what insertion gets:", root);
       const search = new StickyNote({
         root,
         token: tokenInstance,
@@ -82,11 +79,10 @@ export default defineContentScript({
         return;
       }
       let map = "";
-      console.log("looking for id");
       let id = null;
       while (currentNode) {
         id = currentNode.id;
-        if (id !== "" && id !== undefined && map.split(";").length > 15) {
+        if (id !== "" && id !== undefined && map.split(";").length > 0) {
           // length of map too long
           // or root id has been found
           break;
@@ -96,7 +92,6 @@ export default defineContentScript({
         currentNode = currentNode.parentElement;
       }
 
-      console.log(id + map);
       if (id === null && map.split(";").length > 15) {
         // use popup for sticky note
       } else {
