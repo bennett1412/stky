@@ -42,6 +42,19 @@ export default defineContentScript({
       const searchToken = normalizeSpaces(
         window.getSelection()?.toString() || ""
       );
+
+      // remove selection
+      const selection = window.getSelection();
+      if (selection) {
+        if (selection.empty) {
+          // Chrome-specific
+          selection.empty();
+        } else if (selection.removeAllRanges) {
+          // Firefox
+          selection.removeAllRanges();
+        }
+      }
+      
       const tokenInstance = new SearchToken(searchToken, "stky-highlight");
       const db = await getDB();
       const urlObj = new URL(document.URL);

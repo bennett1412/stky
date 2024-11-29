@@ -57,6 +57,8 @@ export class StickyNote extends BaseSearch {
     this.nodeMap = nodeMap;
     this.url = url;
     this.hide = hide ?? false;
+    // ! handle error here
+    updateNote(this.db, this.getNoteObject());
   }
 
   protected wrapRange(range: Range, className: string): void {
