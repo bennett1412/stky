@@ -63,7 +63,7 @@ export class BaseSearch {
     this.state[this.token.text] = {};
     if (this.token.text.length > 0) {
       this.walk(this.root);
-      console.log(this.matches)
+      console.log("potential matches", this.matches);
       if (this.matches.length === 0) return false;
       this.matches.reverse().forEach((m) => {
         const className = m.token.className || this.defaultClassName;
@@ -99,20 +99,28 @@ export class BaseSearch {
     const state = this.state[token.text];
     const caseSensitive = token.caseSensitive || this.defaultCaseSensitive;
     const tokenStr = caseSensitive ? token.text : token.text.toLowerCase();
-
     for (let i = 0; i < text.length; i++) {
       const char = text[i];
       const next = `${state.current || ""}${
         caseSensitive ? char : char.toLowerCase()
       }`.replace(/\s+/g, " ");
+      // console.log(next, tokenStr);  
 
       if (next === tokenStr) {
         this.transitionState(StateTransition.match, state, node, i, next);
       } else {
         const pos = tokenStr.indexOf(next);
         if (pos === 0) {
+          console.group('Equal')
+          console.log(tokenStr)
+          console.log(next)
+          console.groupEnd()
           this.transitionState(StateTransition.valid, state, node, i, next);
         } else {
+          console.group('Not Equal')
+          console.log(tokenStr)
+          console.log(next)
+          console.groupEnd()
           this.transitionState(StateTransition.empty, state, node, i, next);
         }
       }
@@ -211,7 +219,7 @@ export class BaseSearch {
   protected walk(node: HTMLElement): void {
     let currentParent: HTMLElement | undefined = undefined;
     const treeWalker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT);
-
+    console.log("walking");
     while (treeWalker.nextNode()) {
       const current = treeWalker.currentNode;
       if (current.parentElement) {

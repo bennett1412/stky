@@ -1,7 +1,7 @@
 import { openDB, DBSchema, IDBPDatabase } from "idb";
-import { NodeMap } from "./types";
+import { NodeMap, randomUUIDType } from "./types";
 export interface Note {
-  id: `${string}-${string}-${string}-${string}-${string}`;
+  id: randomUUIDType;
   content: string;
   nodeMap: NodeMap;
   highlighted: string;
@@ -38,8 +38,8 @@ export async function updateNote(db: IDBPDatabase<NoteDB>, note: Note) {
 }
 
 // function to delete a note
-export async function deleteNote(db: IDBPDatabase<NoteDB>, note: Note) {
-  await db.add("notes", note);
+export async function deleteNote(db: IDBPDatabase<NoteDB>, id: randomUUIDType) {
+  await db.delete("notes", id);
 }
 
 // function to get all notes

@@ -47,7 +47,9 @@
 }
 
 /* Notes */
-textarea.stky-note {
+textarea.stky-note,
+textarea:focus.stky-note,
+textarea:active.stky-note {
     all: unset;
     font-family: 'Reenie Beanie', cursive;
     background-color: #b9fcb3 !important;
@@ -61,10 +63,6 @@ textarea.stky-note {
     resize: none;
     outline: transparent;
     width: auto;
-}
-
-textarea:focus.stky-note{
-    box-shadow: none;
 }
 
 /* Interactive Ball */
@@ -105,7 +103,7 @@ textarea:focus.stky-note{
     border-radius: 50%;
     width: 40px;
     height: 40px;
-    background-color: #6D6D6D;
+    background: #6D6D6D;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -125,8 +123,10 @@ textarea:focus.stky-note{
 }
 
 .stky-button:hover {
-    background-color: #424242;
     transform: scale(1.1);
+    background: #424242;
+    border: unset;
+    text-decoration: unset;
 }
 
 .stky-button:active {

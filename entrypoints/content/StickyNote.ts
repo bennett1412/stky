@@ -5,14 +5,25 @@ import {
   inline,
 } from "@floating-ui/dom";
 import { debounce } from "./utils";
-import { Note, NoteDB, updateNote } from "./database";
+import { deleteNote, Note, NoteDB, updateNote } from "./database";
 import { IDBPDatabase } from "idb";
 import { BaseSearch } from "./BaseSearch";
 import { SearchToken } from "./BaseSearch";
-import { NodeMap } from "./types";
+import { NodeMap, randomUUIDType } from "./types";
 
+type StickyNoteParams = {
+  root: HTMLElement;
+  token: SearchToken;
+  db: IDBPDatabase<NoteDB>;
+  nodeMap: NodeMap;
+  url: string;
+  id?: randomUUIDType;
+  content?: string;
+  defaultClassName?: string;
+  defaultCaseSensitive?: boolean;
+};
 export class StickyNote extends BaseSearch {
-  private id: `${string}-${string}-${string}-${string}-${string}`;
+  private id: randomUUIDType;
   private db: IDBPDatabase<NoteDB>;
   private nodeMap: NodeMap;
   private content: string;
@@ -20,20 +31,25 @@ export class StickyNote extends BaseSearch {
   private url: string;
   private cleanUp: Function | undefined;
 
-  constructor(
-    root: HTMLElement,
-    token: SearchToken,
-    db: IDBPDatabase<NoteDB>,
-    nodeMap: NodeMap,
-    url: string,
-    id = crypto.randomUUID(),
-    content = "",
-    defaultClassName = "highlight",
-    defaultCaseSensitive = false
-  ) {
-    super(root, token, defaultClassName, defaultCaseSensitive);
-    this.id = id;
-    this.content = content;
+  constructor({
+    root,
+    token,
+    db,
+    nodeMap,
+    url,
+    id,
+    content,
+    defaultClassName,
+    defaultCaseSensitive,
+  }: StickyNoteParams) {
+    super(
+      root,
+      token,
+      defaultClassName ?? "highlight",
+      defaultCaseSensitive ?? false
+    );
+    this.id = id ?? crypto.randomUUID();
+    this.content = content ?? "";
     this.db = db;
     this.nodeMap = nodeMap;
     this.url = url;
@@ -112,6 +128,7 @@ export class StickyNote extends BaseSearch {
       this.removeHighlight();
       const note = document.getElementById(`${this.id}-note`);
       note?.remove();
+      deleteNote(this.db, this.id);
     });
 
     operationsContainer.appendChild(shrinkButton);
@@ -129,7 +146,7 @@ export class StickyNote extends BaseSearch {
       id: this.id,
       nodeMap: this.nodeMap,
       content: value,
-      highlighted: marker.textContent || "",
+      highlighted: this.token.text,
       url: this.url,
     };
   }

@@ -9,6 +9,7 @@ export default defineConfig({
     permissions: ["storage", "scripting", "activeTab", "contextMenus"],
     optional_host_permissions: [`*://*/*`],
     name: "stky",
+    trial_tokens: [`${import.meta.env.trial_token}`],
     version: "1.0.0",
     description: "A simple note-taking Chrome extension.",
     hooks: {

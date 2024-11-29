@@ -1,7 +1,7 @@
 import { SearchToken } from "./BaseSearch";
 import { getAllNotes, getDB } from "./database";
 import { StickyNote } from "./StickyNote";
-import { isSubString, isUrlSuperstring } from "./utils";
+import { isSubString } from "./utils";
 
 export const insertSavedNotes = async () => {
   const db = await getDB();
@@ -10,31 +10,45 @@ export const insertSavedNotes = async () => {
   for (let note of notes) {
     if (!isSubString(document.URL, note.url)) continue;
     const rootId = note.nodeMap.rootId;
-    const tagMap = note.nodeMap.map
+    let tagMap = note.nodeMap.map
       .split(";")
       .filter((tagName) => tagName !== "")
       .map((tagName) => tagName.toLowerCase());
     console.log(tagMap);
     const selector = tagMap.join(" > ");
-    const rootNode = document.getElementById(rootId.toString());
+    const rootNode =
+      document.getElementById(rootId.toString()) ?? document.getRootNode();
+    console.log("look here", rootNode);
     const candidateNodes = document.querySelectorAll(selector);
-    console.log(selector, candidateNodes);
+    // console.log(selector, candidateNodes);
     if (candidateNodes.length > 0) {
-      for (let node of candidateNodes) {
-        const s = new StickyNote(
-          node as HTMLElement,
-          new SearchToken(note.highlighted, "stky-highlight"),
-          db,
-          note.nodeMap,
-          note.url,
-          note.id,
-          note.content
-        );
-        if (s.highlight()) {
-          noteList.push(s);
-          break;
+      for (let i = 0; i < candidateNodes.length; i++) {
+        const node = candidateNodes[i];
+        if (
+          node.nodeType === Node.ELEMENT_NODE &&
+          (node as HTMLElement).innerText.includes(note.highlighted)
+        ) {
+          console.log(
+            "this is what re-insertion gets: ",
+            node,
+            node.parentNode
+          );
+          const s = new StickyNote({
+            root: node as HTMLElement,
+            token: new SearchToken(note.highlighted, "stky-highlight"),
+            db,
+            nodeMap: note.nodeMap,
+            url: note.url,
+            id: note.id,
+            content: note.content,
+          });
+          if (s.highlight()) {
+            noteList.push(s);
+            break;
+          }
         }
       }
     }
+    console.log(note.highlighted);
   }
 };
