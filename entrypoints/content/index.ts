@@ -1,7 +1,7 @@
-import "./styles.css";
-import { getDB } from "./database";
+import "../../shared/styles.css";
+import { getDB } from "../../shared/database";
 import { StickyNote } from "./StickyNote";
-import { NodeMap } from "./types";
+import { NodeMap } from "../../shared/types";
 import { insertSavedNotes } from "./contentOperations";
 import { SearchToken } from "./BaseSearch";
 export default defineContentScript({
@@ -54,7 +54,7 @@ export default defineContentScript({
           selection.removeAllRanges();
         }
       }
-      
+
       const tokenInstance = new SearchToken(searchToken, "stky-highlight");
       const db = await getDB();
       const urlObj = new URL(document.URL);

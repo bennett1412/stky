@@ -1,7 +1,7 @@
 import { SearchToken } from "./BaseSearch";
-import { getAllNotes, getDB } from "./database";
+import { getAllNotes, getDB } from "../../shared/database";
 import { StickyNote } from "./StickyNote";
-import { isSubString } from "./utils";
+import { isSubString } from "../../shared/utils";
 
 export const insertSavedNotes = async () => {
   const db = await getDB();

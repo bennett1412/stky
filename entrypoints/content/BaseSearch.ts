@@ -1,3 +1,5 @@
+import { SearchTokenInterface } from "@/shared/types";
+
 type StateTransitionType = {
   empty: number;
   valid: number;
@@ -10,16 +12,12 @@ const StateTransition: StateTransitionType = {
   match: 2,
 };
 
-interface SearchTokenInterface {
-  text: string;
-  className?: string;
-  caseSensitive?: boolean;
-}
+
 
 export class SearchToken implements SearchTokenInterface {
   text: string;
-  className: string;
-  caseSensitive: boolean;
+  className?: string;
+  caseSensitive?: boolean;
 
   constructor(text: string, className?: string, caseSensitive?: boolean) {
     this.text = text;

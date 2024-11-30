@@ -4,25 +4,14 @@ import {
   computePosition,
   inline,
 } from "@floating-ui/dom";
-import { debounce } from "./utils";
-import { deleteNote, Note, NoteDB, updateNote } from "./database";
+import { debounce } from "@/shared/utils";
+import { deleteNote, updateNote } from "@/shared/database";
 import { IDBPDatabase } from "idb";
 import { BaseSearch } from "./BaseSearch";
 import { SearchToken } from "./BaseSearch";
-import { NodeMap, randomUUIDType } from "./types";
+import { NodeMap, Note, NoteDB, randomUUIDType, StickyNoteParams } from "@/shared/types";
 
-type StickyNoteParams = {
-  root: HTMLElement;
-  token: SearchToken;
-  db: IDBPDatabase<NoteDB>;
-  nodeMap: NodeMap;
-  url: string;
-  hide?: boolean;
-  id?: randomUUIDType;
-  content?: string;
-  defaultClassName?: string;
-  defaultCaseSensitive?: boolean;
-};
+
 export class StickyNote extends BaseSearch {
   private id: randomUUIDType;
   private db: IDBPDatabase<NoteDB>;
