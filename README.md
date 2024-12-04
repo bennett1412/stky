@@ -5,7 +5,7 @@
 ```
 \\ .env
 
-trial_token = abcdefghijkelmn
+summ_token = abcdefghijkelmn
 ```
 
 2. Install packages and run the extension. 

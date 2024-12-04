@@ -19,11 +19,11 @@ export default defineBackground(() => {
       contexts: ["selection"],
     });
 
-    chrome.contextMenus.create({
-      id: "translate-with-ai",
-      title: "Translate with AI",
-      contexts: ["selection"],
-    });
+    // chrome.contextMenus.create({
+    //   id: "translate-with-ai",
+    //   title: "Translate with AI",
+    //   contexts: ["selection"],
+    // });
   });
 
   chrome.contextMenus.onClicked.addListener(async (info, tab) => {
@@ -83,46 +83,6 @@ export default defineBackground(() => {
           }
         } else {
           console.log("no ai");
-        }
-      } else {
-        console.log("trying to translate");
-        let translatedText = "";
-        console.log("sending selected text to translate");
-        if ("translation" in self.ai && "create" in self.ai.translator) {
-          const options = {
-            sourceLanguage: "en",
-            targetLanguage: "fr",
-            monitor(m) {
-              m.addEventListener("downloadprogress", (e) => {
-                console.log(`Downloaded ${e.loaded} of ${e.total} bytes.`);
-              });
-            },
-          };
-
-          let translator;
-          const available = (await self.ai.translator.capabilities()).available;
-
-          if (available === "no") {
-            console.log("Translation API doesn't work");
-          }
-
-          if (available === "readily") {
-            translator = await self.ai.translator.create(options);
-          } else {
-            translator = await self.ai.translator.create(options);
-            // translator.
-            // translator.addEventListener("downloadprogress", (e) => {
-            //   console.log(e.loaded, e.total);
-            // });
-            // await translator.ready;
-          }
-
-          if (info.selectionText) {
-            translatedText = await translator.translate(info.selectionText);
-            insertNote(info, tab, translatedText);
-          }
-        } else {
-          console.log("translation not available");
         }
       }
     }
