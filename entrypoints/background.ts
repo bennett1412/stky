@@ -18,6 +18,12 @@ export default defineBackground(() => {
       title: "Summary with AI",
       contexts: ["selection"],
     });
+
+    chrome.contextMenus.create({
+      id: "translate-with-ai",
+      title: "Translate with AI",
+      contexts: ["selection"],
+    });
   });
 
   chrome.contextMenus.onClicked.addListener(async (info, tab) => {
@@ -38,7 +44,8 @@ export default defineBackground(() => {
     if (tab) {
       if (info.menuItemId === "add-note") {
         await insertNote(info, tab);
-      } else {
+      }
+      if (info.menuItemId === "summarise-with-ai") {
         let summary = "";
         console.log("sending selected text to content");
         if ("ai" in self && "summarizer" in self.ai) {
@@ -76,6 +83,47 @@ export default defineBackground(() => {
           }
         } else {
           console.log("no ai");
+        }
+      } else {
+        let translatedText = "";
+        console.log("sending selected text to translate");
+        if ("translation" in self && "createTranslator" in self.translation) {
+          const options = {
+            sourceLanguage: "en",
+            targetLanguage: "fr",
+            monitor(m) {
+              m.addEventListener("downloadprogress", (e) => {
+                console.log(`Downloaded ${e.loaded} of ${e.total} bytes.`);
+              });
+            },
+          };
+
+          let translator;
+          const available = await self.translation.canTranslate({
+            sourceLanguage: "en",
+            targetLanguage: "fr",
+          });
+
+          if (available === "no") {
+            console.log("Translation API doesn't work");
+          }
+
+          if (available === "readily") {
+            translator = await self.translation.createTranslator(options);
+          } else {
+            translator = await self.translation.createTranslator(options);
+            translator.addEventListener("downloadprogress", (e) => {
+              console.log(e.loaded, e.total);
+            });
+            await translator.ready;
+          }
+
+          if (info.selectionText) {
+            translatedText = await translator.translate(info.selectionText);
+            insertNote(info, tab, translatedText);
+          }
+        }else{
+          console.log('translation not available')
         }
       }
     }

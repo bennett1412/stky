@@ -2,9 +2,6 @@ import { openDB, DBSchema, IDBPDatabase } from "idb";
 import { NodeMap, Note, NoteDB, randomUUIDType } from "./types";
 
 // todo: merge Note and StickyNote interfaces or atleast extend them
-
-
-
 export async function getDB() {
   const db = await openDB<NoteDB>("note-db", 1, {
     upgrade(db) {
