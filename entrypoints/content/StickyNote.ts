@@ -4,13 +4,18 @@ import {
   computePosition,
   inline,
 } from "@floating-ui/dom";
-import { debounce } from "@/shared/utils";
+import { debounce, getBadgeText, updateBadgeText } from "@/shared/utils";
 import { deleteNote, updateNote } from "@/shared/database";
 import { IDBPDatabase } from "idb";
 import { BaseSearch } from "./BaseSearch";
 import { SearchToken } from "./BaseSearch";
-import { NodeMap, Note, NoteDB, randomUUIDType, StickyNoteParams } from "@/shared/types";
-
+import {
+  NodeMap,
+  Note,
+  NoteDB,
+  randomUUIDType,
+  StickyNoteParams,
+} from "@/shared/types";
 
 export class StickyNote extends BaseSearch {
   private id: randomUUIDType;
@@ -128,10 +133,13 @@ export class StickyNote extends BaseSearch {
     const deleteButton = document.createElement("button");
     deleteButton.classList.add("stky-button", "delete");
     deleteButton.setAttribute("data-icon", "delete");
-    deleteButton.addEventListener("click", () => {
+    deleteButton.addEventListener("click", async () => {
       this.removeHighlight();
       const note = document.getElementById(`${this.id}-note`);
       note?.remove();
+      const noteCount = parseInt(await getBadgeText());
+
+      (Number.isNaN(noteCount - 1) ? "" : noteCount + 1).toString()
       deleteNote(this.db, this.id);
     });
 

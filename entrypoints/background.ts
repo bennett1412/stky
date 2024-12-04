@@ -42,10 +42,10 @@ export default defineBackground(() => {
     // }
 
     if (tab) {
+      // console.log("trying to translate");
       if (info.menuItemId === "add-note") {
         await insertNote(info, tab);
-      }
-      if (info.menuItemId === "summarise-with-ai") {
+      } else if (info.menuItemId === "summarise-with-ai") {
         let summary = "";
         console.log("sending selected text to content");
         if ("ai" in self && "summarizer" in self.ai) {
@@ -85,9 +85,10 @@ export default defineBackground(() => {
           console.log("no ai");
         }
       } else {
+        console.log("trying to translate");
         let translatedText = "";
         console.log("sending selected text to translate");
-        if ("translation" in self && "createTranslator" in self.translation) {
+        if ("translation" in self.ai && "create" in self.ai.translator) {
           const options = {
             sourceLanguage: "en",
             targetLanguage: "fr",
@@ -99,31 +100,29 @@ export default defineBackground(() => {
           };
 
           let translator;
-          const available = await self.translation.canTranslate({
-            sourceLanguage: "en",
-            targetLanguage: "fr",
-          });
+          const available = (await self.ai.translator.capabilities()).available;
 
           if (available === "no") {
             console.log("Translation API doesn't work");
           }
 
           if (available === "readily") {
-            translator = await self.translation.createTranslator(options);
+            translator = await self.ai.translator.create(options);
           } else {
-            translator = await self.translation.createTranslator(options);
-            translator.addEventListener("downloadprogress", (e) => {
-              console.log(e.loaded, e.total);
-            });
-            await translator.ready;
+            translator = await self.ai.translator.create(options);
+            // translator.
+            // translator.addEventListener("downloadprogress", (e) => {
+            //   console.log(e.loaded, e.total);
+            // });
+            // await translator.ready;
           }
 
           if (info.selectionText) {
             translatedText = await translator.translate(info.selectionText);
             insertNote(info, tab, translatedText);
           }
-        }else{
-          console.log('translation not available')
+        } else {
+          console.log("translation not available");
         }
       }
     }
@@ -148,4 +147,40 @@ export default defineBackground(() => {
       });
     });
   }
+
+  let currentBadgeText = ""; // Store the current badge text globally
+
+  // Listener for messages from content script
+  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.action === "updateBadge") {
+      // Get the current active tab
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (tabs.length > 0) {
+          const activeTab = tabs[0];
+          // Update badge text for the active tab
+          chrome.action.setBadgeText({
+            text: message.text,
+            tabId: activeTab.id,
+          });
+          sendResponse({ status: "Badge updated" });
+        } else {
+          sendResponse({ status: "No active tab found" });
+        }
+      });
+    } else if (message.action === "getBadge") {
+      // Get the current active tab's badge text
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (tabs.length > 0) {
+          const activeTab = tabs[0];
+          chrome.action.getBadgeText({ tabId: activeTab.id }, (text) => {
+            sendResponse({ text: text });
+          });
+        } else {
+          sendResponse({ status: "No active tab found" });
+        }
+      });
+    }
+    // Return true to indicate we are using sendResponse asynchronously
+    return true;
+  });
 });

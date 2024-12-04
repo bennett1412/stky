@@ -4,6 +4,7 @@ import { StickyNote } from "./StickyNote";
 import { NodeMap } from "../../shared/types";
 import { insertSavedNotes } from "./contentOperations";
 import { SearchToken } from "./BaseSearch";
+import { getBadgeText, updateBadgeText } from "@/shared/utils";
 export default defineContentScript({
   matches: ["<all_urls>"],
   async main(ctx) {
@@ -68,6 +69,11 @@ export default defineContentScript({
         content: summary,
       });
       search.highlight();
+      const noteCount = parseInt(await getBadgeText());
+
+      updateBadgeText(
+        (Number.isNaN(noteCount + 1) ? "" : noteCount + 1).toString()
+      );
     };
 
     var clickedEl: HTMLElement | null = null;

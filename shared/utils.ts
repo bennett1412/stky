@@ -15,3 +15,32 @@ export function isSubString(value: string, substring: string) {
   const regex = new RegExp(`^${escapedCurrentUrl}`);
   return regex.test(value);
 }
+
+// Function to update badge text for the active tab
+export function updateBadgeText(text: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    chrome.runtime.sendMessage(
+      { action: "updateBadge", text: text },
+      (response) => {
+        if (response && response.status === "Badge updated") {
+          resolve("Badge updated");
+        } else {
+          reject("Failed to update badge");
+        }
+      }
+    );
+  });
+}
+
+// Function to get badge text for the active tab
+export function getBadgeText(): Promise<string> {
+  return new Promise((resolve, reject) => {
+    chrome.runtime.sendMessage({ action: "getBadge" }, (response) => {
+      if (response && response.text !== undefined) {
+        resolve(response.text);
+      } else {
+        reject("Failed to retrieve badge text");
+      }
+    });
+  });
+}

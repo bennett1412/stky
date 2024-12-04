@@ -15,7 +15,7 @@
 /* Container */
 .stky-container {
     box-sizing: border-box;
-    z-index: 99;
+    z-index: 1000;
     position: absolute;
     width: 300px;
     top: 0;
@@ -53,16 +53,18 @@ textarea:active.stky-note {
     all: unset;
     font-family: 'Reenie Beanie', cursive;
     background-color: #b9fcb3 !important;
-    font-size: 18px;
-    padding: 10px 15px;
-    border-radius: 5px;
-    flex: 1;
-    color: #474747;
-    border: none;
-    line-height: 1.5;
-    resize: none;
-    outline: transparent;
-    width: auto;
+    font-size: 18px !important;
+    padding: 10px 15px !important;
+    border-radius: 5px !important;
+    flex: 1 !important;
+    color: #474747 !important;
+    border: none !important; 
+    line-height: 1.5 !important;
+    resize: none !important;
+    outline: transparent !important;
+    width: auto !important;
+    box-shadow: none !important;
+    font-size: 15px !important;
 }
 
 /* Interactive Ball */

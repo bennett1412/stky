@@ -1,14 +1,17 @@
 import { SearchToken } from "./BaseSearch";
 import { getAllNotes, getDB } from "../../shared/database";
 import { StickyNote } from "./StickyNote";
-import { isSubString } from "../../shared/utils";
+import { isSubString, updateBadgeText } from "../../shared/utils";
 
 export const insertSavedNotes = async () => {
   const db = await getDB();
-  const notes = await getAllNotes(db);
+  const notes = (await getAllNotes(db)).filter((note) =>
+    isSubString(document.URL, note.url)
+  );
   const noteList = [];
+
+  updateBadgeText(notes.length.toString());
   for (let note of notes) {
-    if (!isSubString(document.URL, note.url)) continue;
     const rootId = note.nodeMap.rootId;
     let tagMap = note.nodeMap.map
       .split(";")
